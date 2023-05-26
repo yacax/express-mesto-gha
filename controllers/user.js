@@ -1,8 +1,8 @@
 const User = require('../models/user');
 
-const { BadRequestError } = require('../errors/BadRequestError');
-const { InternalServerError } = require('../errors/InternalServerError');
-const { UserNotFoundError } = require('../errors/UserNotFoundError');
+const BadRequestError = require('../errors/BadRequestError');
+const InternalServerError = require('../errors/InternalServerError');
+const UserNotFoundError = require('../errors/UserNotFoundError');
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})

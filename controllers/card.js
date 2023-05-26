@@ -1,9 +1,9 @@
 const Card = require('../models/card');
 
-const { BadRequestError } = require('../errors/BadRequestError');
-const { CardNotFoundError } = require('../errors/CardNotFoundError');
+const BadRequestError = require('../errors/BadRequestError');
+const CardNotFoundError = require('../errors/CardNotFoundError');
 
-const { InternalServerError } = require('../errors/InternalServerError');
+const InternalServerError = require('../errors/InternalServerError');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
