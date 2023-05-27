@@ -26,7 +26,11 @@ module.exports.createCard = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  const { _id: cardId } = req.params;
+  const { cardId } = req.params;
+
+  if (!checkIdValidity(cardId, next)) {
+    return;
+  }
 
   Card.findByIdAndRemove(cardId)
     .then((card) => {
@@ -47,8 +51,6 @@ module.exports.deleteCard = (req, res, next) => {
 module.exports.likeCard = (req, res, next) => {
   const { cardId } = req.params;
   const { _id: userId } = req.user;
-
-  console.log(cardId);
 
   if (!checkIdValidity(userId, next) || !checkIdValidity(cardId, next)) {
     return;
