@@ -1,5 +1,4 @@
 const User = require('../models/user');
-const { checkIdValidity } = require('../utils/checkIdValidity');
 
 const BadRequestError = require('../errors/BadRequestError');
 const InternalServerError = require('../errors/InternalServerError');
@@ -27,10 +26,6 @@ module.exports.createUser = (req, res, next) => {
 
 module.exports.getUserById = (req, res, next) => {
   const { userId } = req.params;
-
-  if (!checkIdValidity(userId, next)) {
-    return;
-  }
 
   User.findById(userId)
     .then((user) => {

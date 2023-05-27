@@ -1,6 +1,4 @@
-// const mongoose = require('mongoose');
 const Card = require('../models/card');
-const { checkIdValidity } = require('../utils/checkIdValidity');
 const BadRequestError = require('../errors/BadRequestError');
 const CardNotFoundError = require('../errors/CardNotFoundError');
 const InternalServerError = require('../errors/InternalServerError');
@@ -27,11 +25,7 @@ module.exports.createCard = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  const { cardId } = req.params;
-
-  if (!checkIdValidity(cardId, next)) {
-    return;
-  }
+  const { _id: cardId } = req.params;
 
   Card.findByIdAndRemove(cardId)
     .then((card) => {
@@ -51,11 +45,7 @@ module.exports.deleteCard = (req, res, next) => {
 
 module.exports.likeCard = (req, res, next) => {
   const { cardId } = req.params;
-  const { userId } = req.user;
-
-  if (!checkIdValidity(cardId, next) || !checkIdValidity(userId, next)) {
-    return;
-  }
+  const { _id: userId } = req.user;
 
   Card.findByIdAndUpdate(
     cardId,
@@ -79,11 +69,7 @@ module.exports.likeCard = (req, res, next) => {
 
 module.exports.unlikeCard = (req, res, next) => {
   const { cardId } = req.params;
-  const { userId } = req.user;
-
-  if (!checkIdValidity(cardId, next) || !checkIdValidity(userId, next)) {
-    return;
-  }
+  const { _id: userId } = req.user;
 
   Card.findByIdAndUpdate(
     cardId,
