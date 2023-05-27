@@ -1,4 +1,5 @@
 const Card = require('../models/card');
+const { checkIdValidity } = require('../utils/checkIdValidity');
 const BadRequestError = require('../errors/BadRequestError');
 const CardNotFoundError = require('../errors/CardNotFoundError');
 const InternalServerError = require('../errors/InternalServerError');
@@ -47,6 +48,12 @@ module.exports.likeCard = (req, res, next) => {
   const { cardId } = req.params;
   const { _id: userId } = req.user;
 
+  console.log(cardId);
+
+  if (!checkIdValidity(userId, next) || !checkIdValidity(cardId, next)) {
+    return;
+  }
+
   Card.findByIdAndUpdate(
     cardId,
     { $addToSet: { likes: userId } },
@@ -70,6 +77,10 @@ module.exports.likeCard = (req, res, next) => {
 module.exports.unlikeCard = (req, res, next) => {
   const { cardId } = req.params;
   const { _id: userId } = req.user;
+
+  if (!checkIdValidity(userId, next) || !checkIdValidity(cardId, next)) {
+    return;
+  }
 
   Card.findByIdAndUpdate(
     cardId,

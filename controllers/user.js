@@ -1,5 +1,5 @@
 const User = require('../models/user');
-
+const { checkIdValidity } = require('../utils/checkIdValidity');
 const BadRequestError = require('../errors/BadRequestError');
 const InternalServerError = require('../errors/InternalServerError');
 const UserNotFoundError = require('../errors/UserNotFoundError');
@@ -27,6 +27,10 @@ module.exports.createUser = (req, res, next) => {
 module.exports.getUserById = (req, res, next) => {
   const { userId } = req.params;
 
+  if (!checkIdValidity(userId, next)) {
+    return;
+  }
+
   User.findById(userId)
     .then((user) => {
       if (!user) {
@@ -42,7 +46,7 @@ module.exports.updateProfile = (req, res, next) => {
   const userId = req.user._id;
   const fieldsToUpdate = req.body;
 
-  User.findByIdAndUpdate(userId, fieldsToUpdate, { new: true })
+  User.findByIdAndUpdate(userId, fieldsToUpdate, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
         next(new UserNotFoundError());
@@ -61,7 +65,7 @@ module.exports.updateProfile = (req, res, next) => {
 
 module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
-  const { userId } = req.user;
+  const userId = req.user._id;
 
   User.findByIdAndUpdate(
     userId,

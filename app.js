@@ -19,7 +19,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/users', require('./routes/users'));
-app.use('/users/:userId', require('./routes/users'));
+// app.use('/users/:userId', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
 // eslint-disable-next-line no-unused-vars
