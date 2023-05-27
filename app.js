@@ -19,9 +19,11 @@ app.use((req, res, next) => {
 });
 
 app.use('/users', require('./routes/users'));
-// app.use('/users/:userId', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
+app.use('*', (req, res) => {
+  res.status(404).json({ message: 'Resource not found' });
+});
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   res.status(err.statusCode || 500).send({ message: err.message || 'Internal Server Error' });
