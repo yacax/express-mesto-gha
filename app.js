@@ -1,16 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const winston = require('winston');
-
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.json(),
-  defaultMeta: { service: 'server-mesto' },
-  transports: [
-    new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'combined.log' }),
-  ],
-});
+const logger = require('./utils/logger');
 
 const app = express();
 const { PORT = 3000 } = process.env;
@@ -31,6 +21,10 @@ app.use((req, res, next) => {
 
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
+
+app.use('*', (req, res) => {
+  res.status(404).json({ message: 'Resource not found' });
+});
 
 app.use((err, req, res, next) => {
   res.status(err.statusCode || 500).send({ message: err.message || 'Internal Server Error' });
