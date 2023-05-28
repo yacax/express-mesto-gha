@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const logger = require('./utils/logger');
+const { logger } = require('./utils/logger');
 
 const app = express();
 const { PORT = 3000 } = process.env;
