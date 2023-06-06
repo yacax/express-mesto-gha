@@ -1,8 +1,11 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { checkIdValidity } = require('../utils/checkIdValidity');
 const BadRequestError = require('../errors/BadRequestError');
 const InternalServerError = require('../errors/InternalServerError');
 const UserNotFoundError = require('../errors/UserNotFoundError');
+const AuthenticationError = require('../errors/AuthenticationError');
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
@@ -11,10 +14,26 @@ module.exports.getUsers = (req, res, next) => {
 };
 
 module.exports.createUser = (req, res, next) => {
-  const { name, about, avatar } = req.body;
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  } = req.body;
 
-  User.create({ name, about, avatar })
-    .then((user) => res.send({ data: user }))
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
+    .then((user) => res.send({
+      _id: user._id,
+      email: user.email,
+    }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError());
@@ -24,13 +43,28 @@ module.exports.createUser = (req, res, next) => {
     });
 };
 
+module.exports.login = (req, res, next) => {
+  const { email } = req.body;
+
+  return User.findOne({ email }).select('+password')
+    .then((user) => {
+      const token = jwt.sign(
+        { _id: user._id },
+        'some-secret-key',
+        { expiresIn: '7d' },
+      );
+      res.send({ token });
+    })
+    .catch(() => {
+      next(new AuthenticationError());
+    });
+};
+
 module.exports.getUserById = (req, res, next) => {
   const { userId } = req.params;
-
   if (!checkIdValidity(userId, next)) {
     return;
   }
-
   User.findById(userId)
     .then((user) => {
       if (!user) {
@@ -38,6 +72,29 @@ module.exports.getUserById = (req, res, next) => {
         return;
       }
       res.send({ data: user });
+    })
+    .catch(() => next(new InternalServerError()));
+};
+
+module.exports.getCurrentUser = (req, res, next) => {
+  const { _id: userId } = req.user;
+  if (!checkIdValidity(userId, next)) {
+    return;
+  }
+  User.findById(userId)
+    .then((user) => {
+      if (!user) {
+        next(new UserNotFoundError());
+        return;
+      }
+      res.send({
+        data: {
+          _id: user._id,
+          email: user.email,
+          name: user.name,
+          about: user.about,
+        },
+      });
     })
     .catch(() => next(new InternalServerError()));
 };

@@ -3,6 +3,7 @@ const { checkIdValidity } = require('../utils/checkIdValidity');
 const BadRequestError = require('../errors/BadRequestError');
 const CardNotFoundError = require('../errors/CardNotFoundError');
 const InternalServerError = require('../errors/InternalServerError');
+const AuthenticationError = require('../errors/AuthenticationError');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
@@ -27,20 +28,29 @@ module.exports.createCard = (req, res, next) => {
 
 module.exports.deleteCard = (req, res, next) => {
   const { cardId } = req.params;
+  const { _id: userId } = req.user;
 
   if (!checkIdValidity(cardId, next)) {
     return;
   }
 
-  Card.findByIdAndRemove(cardId)
+  Card.findById(cardId)
     .then((card) => {
       if (!card) {
         throw new CardNotFoundError();
       }
-      return res.send({ data: card });
+      if (card.owner.toString() !== userId) {
+        throw new AuthenticationError();
+      }
+      return Card.findByIdAndRemove(cardId);
+    })
+    .then((card) => {
+      res.send({ data: card });
     })
     .catch((err) => {
       if (err instanceof CardNotFoundError) {
+        next(err);
+      } else if (err instanceof AuthenticationError) {
         next(err);
       } else {
         next(new InternalServerError());

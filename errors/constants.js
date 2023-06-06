@@ -5,5 +5,6 @@ module.exports = {
     CARD_NOT_FOUND: 'Запрашиваемая карточка не найдена.',
     USER_NOT_FOUND: 'Пользователь не найден.',
     INTERNAL_SERVER_ERROR: 'Внутренняя ошибка сервера.',
+    AUTHENTICATION_ERROR: 'Ошибка аутентификации',
   },
 };
