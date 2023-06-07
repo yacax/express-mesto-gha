@@ -18,17 +18,6 @@ module.exports.validateAuthentication = celebrate({
   }),
 });
 
-module.exports.validateUserId = celebrate({
-  body: Joi.object().keys({
-    _id: Joi.string().custom((value, helpers) => {
-      if (!ObjectId.isValid(value)) {
-        return helpers.error('Invalid user id');
-      }
-      return value;
-    }, 'custom validation'),
-  }),
-});
-
 module.exports.validateUserFields = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
@@ -44,11 +33,11 @@ module.exports.validateCardFields = celebrate({
   }).and('name', 'link'),
 });
 
-module.exports.validateCardId = celebrate({
-  body: Joi.object().keys({
-    _id: Joi.string().custom((value, helpers) => {
+module.exports.validateId = celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().custom((value, helpers) => {
       if (!ObjectId.isValid(value)) {
-        return helpers.error('Invalid user id');
+        return helpers.error('Invalid card id');
       }
       return value;
     }, 'custom validation'),

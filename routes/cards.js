@@ -9,12 +9,18 @@ const {
 
 } = require('../controllers/card');
 
-const { validateCardId, validateCardFields, validateBearerToken } = require('../utils/validators');
+const {
+
+  validateId,
+  validateCardFields,
+  validateBearerToken,
+
+} = require('../utils/validators');
 
 router.get('/', validateBearerToken, getCards);
 router.post('/', validateCardFields, createCard);
-router.delete('/:cardId', validateCardId, deleteCard);
-router.put('/:cardId/likes', validateCardId, likeCard);
-router.delete('/:cardId/likes', validateCardId, unlikeCard);
+router.delete('/:cardId', validateId, deleteCard);
+router.put('/:cardId/likes', validateId, likeCard);
+router.delete('/:cardId/likes', validateId, unlikeCard);
 
 module.exports = router;
