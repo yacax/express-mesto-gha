@@ -39,7 +39,9 @@ module.exports.createUser = (req, res, next) => {
       avatar: user.avatar,
     }))
     .catch((err) => {
-      if (err.code === 11000) {
+      if (err instanceof BadRequestError) {
+        next(err);
+      } else if (err.code === 11000) {
         next(new UserAlreadyExist());
       } else {
         next(new InternalServerError());
