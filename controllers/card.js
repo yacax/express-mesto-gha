@@ -4,6 +4,7 @@ const BadRequestError = require('../errors/BadRequestError');
 const CardNotFoundError = require('../errors/CardNotFoundError');
 const InternalServerError = require('../errors/InternalServerError');
 const AuthenticationError = require('../errors/AuthenticationError');
+const NoRightsToTheOperation = require('../errors/NoRightsToTheOperation');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
@@ -40,7 +41,7 @@ module.exports.deleteCard = (req, res, next) => {
         throw new CardNotFoundError();
       }
       if (card.owner.toString() !== userId) {
-        throw new AuthenticationError();
+        throw new NoRightsToTheOperation();
       }
       return Card.findByIdAndRemove(cardId);
     })

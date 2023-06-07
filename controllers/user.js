@@ -6,6 +6,7 @@ const BadRequestError = require('../errors/BadRequestError');
 const InternalServerError = require('../errors/InternalServerError');
 const UserNotFoundError = require('../errors/UserNotFoundError');
 const AuthenticationError = require('../errors/AuthenticationError');
+const UserAlreadyExist = require('../errors/UserAlreadyExists');
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
@@ -33,10 +34,13 @@ module.exports.createUser = (req, res, next) => {
     .then((user) => res.send({
       _id: user._id,
       email: user.email,
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
     }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new BadRequestError());
+      if (err.code === 11000) {
+        next(new UserAlreadyExist());
       } else {
         next(new InternalServerError());
       }
@@ -88,12 +92,10 @@ module.exports.getCurrentUser = (req, res, next) => {
         return;
       }
       res.send({
-        data: {
-          _id: user._id,
-          email: user.email,
-          name: user.name,
-          about: user.about,
-        },
+        _id: user._id,
+        email: user.email,
+        name: user.name,
+        about: user.about,
       });
     })
     .catch(() => next(new InternalServerError()));

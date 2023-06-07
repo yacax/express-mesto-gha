@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');
 const { logger } = require('./utils/logger');
 const { login, createUser } = require('./controllers/user');
 const { validateAuthentication, validateUserBody } = require('./utils/validators');
@@ -24,8 +25,13 @@ app.use('*', (req, res) => {
   res.status(404).json({ message: 'Resource not found' });
 });
 
+app.use(errors());
+
 app.use((err, req, res, next) => {
-  res.status(err.statusCode || 500).send({ message: err.message || 'Internal Server Error' });
+  const statusCode = err.statusCode || 500;
+  const message = err.joi ? err.joi.details[0].message : err.message || 'Internal Server Error';
+
+  res.status(statusCode).send({ message });
   next();
 });
 
