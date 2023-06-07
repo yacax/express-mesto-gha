@@ -11,7 +11,7 @@ const {
 
 const {
 
-  validateId,
+  validateCardId,
   validateCardFields,
   validateBearerToken,
 
@@ -19,8 +19,8 @@ const {
 
 router.get('/', validateBearerToken, getCards);
 router.post('/', validateCardFields, createCard);
-router.delete('/:cardId', validateId, deleteCard);
-router.put('/:cardId/likes', validateId, likeCard);
-router.delete('/:cardId/likes', validateId, unlikeCard);
+router.delete('/:cardId', validateCardId, deleteCard);
+router.put('/:cardId/likes', validateCardId, likeCard);
+router.delete('/:cardId/likes', validateCardId, unlikeCard);
 
 module.exports = router;

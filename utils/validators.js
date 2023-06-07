@@ -18,6 +18,17 @@ module.exports.validateAuthentication = celebrate({
   }),
 });
 
+module.exports.validateUserId = celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().custom((value, helpers) => {
+      if (!ObjectId.isValid(value)) {
+        return helpers.error('Invalid user id');
+      }
+      return value;
+    }, 'custom validation'),
+  }),
+});
+
 module.exports.validateUserFields = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
@@ -28,12 +39,12 @@ module.exports.validateUserFields = celebrate({
 
 module.exports.validateCardFields = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    link: Joi.string().pattern(/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/),
-  }).and('name', 'link'),
+    name: Joi.string().required().min(2).max(30),
+    link: Joi.string().required().pattern(/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/),
+  }),
 });
 
-module.exports.validateId = celebrate({
+module.exports.validateCardId = celebrate({
   params: Joi.object().keys({
     cardId: Joi.string().custom((value, helpers) => {
       if (!ObjectId.isValid(value)) {

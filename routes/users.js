@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const {
 
-  validateId,
+  validateUserId,
   validateUserFields,
   validateBearerToken,
 
@@ -19,7 +19,7 @@ const {
 
 router.get('/', validateBearerToken, getUsers);
 router.get('/me', validateBearerToken, getCurrentUser);
-router.get('/:userId', validateId, getUserById);
+router.get('/:userId', validateUserId, getUserById);
 router.patch('/me', validateUserFields, updateProfile);
 router.patch('/me/avatar', validateUserFields, updateAvatar);
 
