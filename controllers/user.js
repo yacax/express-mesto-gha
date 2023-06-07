@@ -91,12 +91,7 @@ module.exports.getCurrentUser = (req, res, next) => {
         next(new UserNotFoundError());
         return;
       }
-      res.send({
-        _id: user._id,
-        email: user.email,
-        name: user.name,
-        about: user.about,
-      });
+      res.send({ data: user });
     })
     .catch(() => next(new InternalServerError()));
 };

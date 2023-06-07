@@ -51,6 +51,8 @@ module.exports.deleteCard = (req, res, next) => {
     .catch((err) => {
       if (err instanceof CardNotFoundError) {
         next(err);
+      } else if (err instanceof NoRightsToTheOperation) {
+        next(err);
       } else if (err instanceof AuthenticationError) {
         next(err);
       } else {
