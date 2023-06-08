@@ -5,9 +5,10 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { logger } = require('./utils/logger');
 const { login, createUser } = require('./controllers/user');
-const { validateAuthentication, validateUserBody } = require('./utils/validators');
 const auth = require('./middlewares/auth');
-const { NoRightsToTheOperation, NotFoundError } = require('./errors/NoRightsToTheOperation');
+const { validateAuthentication, validateUserBody } = require('./utils/validators');
+const NoRightsToTheOperation = require('./errors/NoRightsToTheOperation');
+const NotFoundError = require('./errors/NotFoundError');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
@@ -36,7 +37,7 @@ app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
 app.use('*', (req, res, next) => {
-  next(new NotFoundError('Resource not found'));
+  next(new NotFoundError());
 });
 
 app.use(errors());
