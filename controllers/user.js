@@ -4,7 +4,7 @@ const User = require('../models/user');
 const { checkIdValidity } = require('../utils/checkIdValidity');
 const BadRequestError = require('../errors/BadRequestError');
 const InternalServerError = require('../errors/InternalServerError');
-const UserNotFoundError = require('../errors/UserNotFoundError');
+const NotFoundError = require('../errors/NotFoundError');
 const AuthenticationError = require('../errors/AuthenticationError');
 const UserAlreadyExist = require('../errors/UserAlreadyExists');
 
@@ -31,7 +31,7 @@ module.exports.createUser = (req, res, next) => {
       email,
       password: hash,
     }))
-    .then((user) => res.send({
+    .then((user) => res.status(201).send({
       _id: user._id,
       email: user.email,
       name: user.name,
@@ -50,16 +50,28 @@ module.exports.createUser = (req, res, next) => {
 };
 
 module.exports.login = (req, res, next) => {
-  const { email } = req.body;
+  const { email, password } = req.body;
 
   return User.findOne({ email }).select('+password')
     .then((user) => {
-      const token = jwt.sign(
-        { _id: user._id },
-        'some-secret-key',
-        { expiresIn: '7d' },
-      );
-      res.send({ token });
+      if (!user) {
+        throw new AuthenticationError();
+      }
+
+      return bcrypt.compare(password, user.password)
+        .then((isMatch) => {
+          if (!isMatch) {
+            throw new AuthenticationError();
+          }
+
+          const token = jwt.sign(
+            { _id: user._id },
+            'some-secret-key',
+            { expiresIn: '7d' },
+          );
+
+          res.send({ token });
+        });
     })
     .catch(() => {
       next(new AuthenticationError());
@@ -74,7 +86,7 @@ module.exports.getUserById = (req, res, next) => {
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        next(new UserNotFoundError());
+        next(new NotFoundError());
         return;
       }
       res.send({ data: user });
@@ -90,12 +102,12 @@ module.exports.getCurrentUser = (req, res, next) => {
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        next(new UserNotFoundError());
+        next(new NotFoundError());
         return;
       }
       res.send({ data: user });
     })
-    .catch(() => next(new InternalServerError()));
+    .catch(next);
 };
 
 module.exports.updateProfile = (req, res, next) => {
@@ -105,7 +117,7 @@ module.exports.updateProfile = (req, res, next) => {
   User.findByIdAndUpdate(userId, fieldsToUpdate, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        next(new UserNotFoundError());
+        next(new NotFoundError());
         return;
       }
       res.send({ data: user });
@@ -130,7 +142,7 @@ module.exports.updateAvatar = (req, res, next) => {
   )
     .then((user) => {
       if (!user) {
-        next(new UserNotFoundError());
+        next(new NotFoundError());
         return;
       }
       res.send({ data: user });

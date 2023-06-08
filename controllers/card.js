@@ -1,15 +1,14 @@
 const Card = require('../models/card');
 const { checkIdValidity } = require('../utils/checkIdValidity');
 const BadRequestError = require('../errors/BadRequestError');
-const CardNotFoundError = require('../errors/CardNotFoundError');
-const InternalServerError = require('../errors/InternalServerError');
+const NotFoundError = require('../errors/NotFoundError');
 const AuthenticationError = require('../errors/AuthenticationError');
 const NoRightsToTheOperation = require('../errors/NoRightsToTheOperation');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => next(new InternalServerError()));
+    .catch(next);
 };
 
 module.exports.createCard = (req, res, next) => {
@@ -17,12 +16,12 @@ module.exports.createCard = (req, res, next) => {
   const { _id: owner } = req.user;
 
   Card.create({ name, link, owner })
-    .then((card) => res.send({ data: card }))
+    .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError());
       } else {
-        next(new InternalServerError());
+        next(err);
       }
     });
 };
@@ -38,7 +37,7 @@ module.exports.deleteCard = (req, res, next) => {
   Card.findById(cardId)
     .then((card) => {
       if (!card) {
-        throw new CardNotFoundError();
+        throw new NotFoundError();
       }
       if (card.owner.toString() !== userId) {
         throw new NoRightsToTheOperation();
@@ -49,14 +48,14 @@ module.exports.deleteCard = (req, res, next) => {
       res.send({ data: card });
     })
     .catch((err) => {
-      if (err instanceof CardNotFoundError) {
+      if (err instanceof NotFoundError) {
         next(err);
       } else if (err instanceof NoRightsToTheOperation) {
         next(err);
       } else if (err instanceof AuthenticationError) {
         next(err);
       } else {
-        next(new InternalServerError());
+        next(err);
       }
     });
 };
@@ -76,15 +75,15 @@ module.exports.likeCard = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        throw new CardNotFoundError();
+        throw new NotFoundError();
       }
       res.send({ data: card });
     })
     .catch((err) => {
-      if (err instanceof CardNotFoundError) {
+      if (err instanceof NotFoundError) {
         next(err);
       } else {
-        next(new InternalServerError());
+        next(err);
       }
     });
 };
@@ -104,15 +103,15 @@ module.exports.unlikeCard = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        throw new CardNotFoundError();
+        throw new NotFoundError();
       }
       res.send({ data: card });
     })
     .catch((err) => {
-      if (err instanceof CardNotFoundError) {
+      if (err instanceof NotFoundError) {
         next(err);
       } else {
-        next(new InternalServerError());
+        next(err);
       }
     });
 };

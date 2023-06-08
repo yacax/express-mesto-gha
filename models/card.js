@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const BadRequestError = require('../errors/BadRequestError');
+const { regexPatterns } = require('../utils/regexPatterns');
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -13,7 +14,7 @@ const cardSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator(v) {
-        return /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/.test(v);
+        return regexPatterns.link.test(v);
       },
       message: 'URL is not valid!',
     },
